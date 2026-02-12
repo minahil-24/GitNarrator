@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitNarrator - Intelligent Repository Analyzer</title>
+    <link rel="stylesheet" href="sidepanel.css">
+
+    <!-- External Libraries -->
+    <script src="../assets/libs/chart.min.js"></script>
+    <script src="../assets/libs/mermaid.min.js"></script>
+    <script src="../assets/libs/pptxgen.bundle.js"></script>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-top">
+            <h1>
+                <span class="icon">📊</span>
+                GitNarrator
+                <span class="version">v2.0</span>
+            </h1>
+            <div class="header-actions">
+                <select id="mode-select" class="mode-select" title="Analysis Mode">
+                    <option value="basic">Basic Mode</option>
+                    <option value="advanced">Advanced Mode</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="repo-info" id="repo-info">
+            <div class="repo-name" id="repo-name">Detecting repository...</div>
+            <div class="repo-meta">
+                <span class="badge" id="repo-branch">--</span>
+                <span class="badge" id="repo-stars">⭐ --</span>
+            </div>
+        </div>
+
+        <!-- Settings Panel -->
+        <details class="settings-panel">
+            <summary class="settings-toggle">⚙️ Settings</summary>
+            <div class="settings-content">
+                <label for="openai-key">OpenAI API Key (Optional):</label>
+                <input type="password" id="openai-key" placeholder="sk-..." class="settings-input">
+                <button id="save-key-btn" class="btn-secondary">Save Key</button>
+                <p class="settings-hint">Key is stored locally. Leave empty to use heuristic analysis.</p>
+            </div>
+        </details>
+    </header>
+
+    <!-- Progress Indicator -->
+    <div id="progress-container" class="progress-container" style="display: none;">
+        <div class="progress-header">
+            <span class="progress-text" id="progress-text">0%</span>
+            <span class="progress-close" id="progress-close">×</span>
+        </div>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="progress-message" id="progress-message">Starting analysis...</div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="tabs">
+        <button class="tab-btn active" data-tab="overview">Overview</button>
+        <button class="tab-btn" data-tab="structure">Structure</button>
+        <button class="tab-btn" data-tab="commits">Commits</button>
+        <button class="tab-btn" data-tab="branches">Branches</button>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Overview Tab -->
+        <section id="tab-overview" class="tab-content active">
+            <div class="card">
+                <h3>📄 Repository Description</h3>
+                <div id="repo-description" class="repo-description">
+                    <p class="loading-text">Loading repository information...</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🚀 Technology Stack</h3>
+                <div id="tech-stack" class="tech-stack">
+                    <p class="loading-text">Analyzing technologies...</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📊 Repository Statistics</h3>
+                <div class="stats-grid" id="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-value" id="stat-stars">0</span>
+                        <span class="stat-label">Stars</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="stat-forks">0</span>
+                        <span class="stat-label">Forks</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="stat-issues">0</span>
+                        <span class="stat-label">Issues</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="stat-files">0</span>
+                        <span class="stat-label">Files</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button id="btn-analyze" class="btn-primary">
+                    <span>🔍</span> Analyze Repository
+                </button>
+                <button id="btn-generate-ppt" class="btn-primary" disabled>
+                    <span>📥</span> Generate PowerPoint
+                </button>
+            </div>
+        </section>
+
+        <!-- Structure Tab -->
+        <section id="tab-structure" class="tab-content">
+            <div class="card">
+                <h3>📁 Module Structure</h3>
+                <div id="module-structure" class="module-structure">
+                    <p class="loading-text">Run analysis to see module structure</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🗺️ Architecture Diagram</h3>
+                <div id="architecture-diagram" class="diagram-container">
+                    <p class="loading-text">Architecture diagram will appear here</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Commits Tab -->
+        <section id="tab-commits" class="tab-content">
+            <div class="card">
+                <h3>📝 Commit History</h3>
+                <div id="commit-history" class="commit-history">
+                    <p class="loading-text">Run analysis to see commit history</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>👥 Contributors</h3>
+                <div id="contributors" class="contributors">
+                    <p class="loading-text">Loading contributors...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Branches Tab -->
+        <section id="tab-branches" class="tab-content">
+            <div class="card">
+                <h3>🌿 Branches</h3>
+                <div id="branch-selector-container"></div>
+                <div id="branch-info" class="branch-info">
+                    <p class="loading-text">Select a branch to compare</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Scripts - Load in order -->
+    <!-- Utils -->
+    <script src="../utils/logger.js"></script>
+    <script src="../utils/storage-utils.js"></script>
+    <script src="../utils/error-handler.js"></script>
+    <script src="../utils/dom-utils.js"></script>
+
+    <!-- Services -->
+    <script src="../services/github/rate-limiter.js"></script>
+    <script src="../services/github/api-client.js"></script>
+    <script src="../services/analysis/module-classifier.js"></script>
+    <script src="../services/analysis/code-analyzer.js"></script>
+    <script src="../services/analysis/commit-analyzer.js"></script>
+    <script src="../services/analysis/branch-comparator.js"></script>
+    <script src="../services/analysis/repository-analyzer.js"></script>
+    <script src="../services/analysis/diagram-generator.js"></script>
+    <script src="../services/ai/ai-service.js"></script>
+    <script src="../services/ppt/ppt-generator.js"></script>
+
+    <!-- Components -->
+    <script src="components/progress-indicator.js"></script>
+    <script src="components/branch-selector.js"></script>
+
+    <!-- Main -->
+    <script src="sidepanel.js"></script>
+</body>
+
+</html>

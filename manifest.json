@@ -1,0 +1,46 @@
+{
+    "manifest_version": 3,
+    "name": "GitNarrator - Intelligent GitHub Repository Analyzer",
+    "version": "2.0.0",
+    "description": "Analyze GitHub repositories, traverse branches and commits, and generate comprehensive PowerPoint presentations with architecture diagrams, commit history, and code analysis.",
+    "permissions": [
+        "sidePanel",
+        "storage",
+        "activeTab",
+        "scripting"
+    ],
+    "host_permissions": [
+        "https://github.com/*",
+        "https://api.github.com/*",
+        "https://api.openai.com/*"
+    ],
+    "background": {
+        "service_worker": "background/service-worker.js"
+    },
+    "side_panel": {
+        "default_path": "ui/sidepanel.html"
+    },
+    "action": {
+        "default_title": "Open GitNarrator",
+        "default_icon": {
+            "16": "assets/icons/icon16.png",
+            "48": "assets/icons/icon48.png",
+            "128": "assets/icons/icon128.png"
+        }
+    },
+    "icons": {
+        "16": "assets/icons/icon16.png",
+        "48": "assets/icons/icon48.png",
+        "128": "assets/icons/icon128.png"
+    },
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "assets/*"
+            ],
+            "matches": [
+                "<all_urls>"
+            ]
+        }
+    ]
+}
